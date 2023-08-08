@@ -35,8 +35,8 @@ Alternativelly, you can use other MongoDB instance as long as you modify the con
 This section describes how to use this repository to retrieve the headers of multiple web sites, parse their CSP and detect potential weaknesses to exploit. 
 
 There are two ways to use this repo. 
-1. Using the wrapper script with name "dresscode.py". See the section "Dresscode Execution" for further details.
-2. Executing each script individually. See the section "Individual Execution"
+1. Using the wrapper script with name "dresscode.py". See ["Dresscode Execution"](USAGE.md#dresscode-execution).
+2. Executing each script individually. See ["Individual Execution"](USAGE.md#individual-execution)
 
 # Dresscode Execution
 
