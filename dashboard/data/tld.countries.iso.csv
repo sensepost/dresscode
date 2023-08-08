@@ -1,0 +1,284 @@
+TLD,Country,ISO
+abudhabi,Abu Dhabi,ARE
+ae,Abu Dhabi,ARE
+af,Afghanistan,AFG
+ax,Åland,???
+al,Albania,ALB
+dz,Algeria,DZA
+as,American Samoa,ASM
+ad,Andorra,AND
+ao,Angola,AGO
+ai,Anguilla,AIA
+aq,Antarctica,ATA
+ag,Antigua and Barbuda,ATG
+ar,Argentina,ARG
+am,Armenia,ARM
+aw,Aruba,ABW
+ac,Ascension Island,SHN
+au,Australia,AUS
+at,Austria,AUT
+az,Azerbaijan,AZE
+bs,Bahamas,BHS
+bh,Bahrain,BHR
+bd,Bangladesh,BGD
+bb,Barbados,BRB
+eus,Basque Country,???
+by,Belarus,BLR
+be,Belgium,BEL
+bz,Belize,BLZ
+bj,Benin,BEN
+bm,Bermuda,BMU
+bt,Bhutan,BTN
+bo,Bolivia,BOL
+bq,Bonaire,BES
+an,Netherlands Antilles,NLD
+nl,Netherlands,NLD
+ba,Bosnia and Herzegovina,BIH
+bw,Botswana,BWA
+bv,Bouvet Island,BVT
+br,Brazil,BRA
+io,British Indian Ocean Territory,IOT
+vg,British Virgin Islands,VGB
+bn,Brunei,BRN
+bg,Bulgaria,BGR
+bf,Burkina Faso,BFA
+mm,Burma (officially: Myanmar),MMR
+bi,Burundi,BDI
+kh,Cambodia,KHM
+cm,Cameroon,CMR
+ca,Canada,CAN
+cv,Cape Verde (in Portuguese: Cabo Verde),CPV
+cat,Catalonia,???
+ky,Cayman Islands,CYM
+cf,Central African Republic,CAF
+td,Chad,TCD
+cl,Chile,CHL
+cn,"China, People’s Republic of",CHN
+cx,Christmas Island,CXR
+cc,Cocos (Keeling) Islands,CCK
+co,Colombia,COL
+km,Comoros,COM
+cd,"Congo, Democratic Republic of the (Congo-Kinshasa)",COG
+cg,"Congo, Republic of the (Congo-Brazzaville)",COG
+ck,Cook Islands,COK
+cr,Costa Rica,CRI
+ci,Côte d’Ivoire (Ivory Coast),???
+hr,Croatia,HRV
+cu,Cuba,CUB
+cw,Curaçao,CUW
+cy,Cyprus,CYP
+nc.tr,"Cyprus, North (unrecognised, self-declared state)",CYP
+cz,Czechia (Czech Republic),CZE
+dk,Denmark,DNK
+dj,Djibouti,DJI
+dm,Dominica,DMA
+do,Dominican Republic,DOM
+ae,"Dubai (not a country, but a state (an emirate) within the United Arab Emirates)",ARE
+tl,East Timor (Timor-Leste),TLS
+tp,Timor Portugues,TLS
+ec,Ecuador,ECU
+eg,Egypt,EGY
+sv,El Salvador,SLV
+uk,England,GBR
+gq,Equatorial Guinea,GNQ
+er,Eritrea,ERI
+ee,Estonia,EST
+et,Ethiopia,ETH
+eu,European Union,???
+fo,Faeroe Islands,???
+fk,Falkland Islands,FLK
+fj,Fiji,FJI
+fi,Finland,FIN
+fr,France,FRA
+gf,French Guiana (French overseas department),GUF
+pf,French Polynesia (French overseas collectivity),PYF
+tf,French Southern and Antarctic Lands,ATA
+ga,Gabon (officially: Gabonese Republic),GAB
+gal,Galicia,???
+gm,Gambia,GMB
+ps,Gaza Strip (Gaza),???
+ge,Georgia,GEO
+de,Germany,DEU
+gh,Ghana,GHA
+gi,Gibraltar,GIB
+uk,Great Britain,GBR
+gb,Great Britain,GBR
+gr,Greece,GRC
+gl,Greenland,GRL
+gd,Grenada,GRD
+gp,Guadeloupe (French overseas department),GLP
+gu,Guam,GUM
+gt,Guatemala,GTM
+gg,Guernsey,GGY
+gn,Guinea,GIN
+gw,Guinea-Bissau,GNB
+gy,Guyana,GUY
+ht,Haiti,HTI
+hm,Heard Island and McDonald Islands,HMD
+nl,Holland (officially: the Netherlands),NLD
+hn,Honduras,HND
+hk,Hong Kong,HKG
+hu,Hungary,HUN
+is,Iceland,ISL
+in,India,IND
+id,Indonesia,IDN
+ir,Iran,IRN
+iq,Iraq,IRQ
+ie,Ireland,IRL
+uk,"Ireland, Northern",GBR
+im,Isle of Man,IMN
+il,Israel,ISR
+it,Italy,ITA
+jm,Jamaica,JAM
+jp,Japan,JPN
+je,Jersey,JEY
+jo,Jordan,JOR
+kz,Kazakhstan,KAZ
+ke,Kenya,KEN
+ki,Kiribati,KIR
+kp,"Korea, North",PRK
+kr,"Korea, South",KOR
+not assigned yet (in the meantime the Albanian TLD .al is used),Kosovo,ALB
+kw,Kuwait,KWT
+kg,Kyrgyzstan,KGZ
+la,Laos,???
+lv,Latvia,LVA
+lb,Lebanon,LBN
+ls,Lesotho,LSO
+lr,Liberia,LBR
+ly,Libya,LBY
+li,Liechtenstein,LIE
+lt,Lithuania,LTU
+lu,Luxembourg,LUX
+mo,Macau,???
+mk,"Macedonia, North",MKD
+mg,Madagascar,MDG
+mw,Malawi,MWI
+my,Malaysia,MYS
+mv,Maldives,MDV
+ml,Mali,MLI
+mt,Malta,MLT
+mh,Marshall Islands,MHL
+mq,Martinique (French overseas department),MTQ
+mr,Mauritania,MRT
+mu,Mauritius,MUS
+yt,Mayotte (French overseas department),MYT
+mx,Mexico,MEX
+fm,Micronesia (officially: Federated States of Micronesia),FSM
+md,Moldova,MDA
+mc,Monaco,MCO
+mn,Mongolia,MNG
+me,Montenegro,MNE
+ms,Montserrat,MSR
+ma,Morocco,MAR
+mz,Mozambique,MOZ
+mm,Myanmar,MMR
+na,Namibia,NAM
+nr,Nauru,NRU
+np,Nepal,NPL
+nl,Netherlands,NLD
+nc,New Caledonia (French overseas collectivity),NCL
+nz,New Zealand,NZL
+ni,Nicaragua,NIC
+ne,Niger,NER
+ng,Nigeria,NGA
+nu,Niue,NIU
+nf,Norfolk Island,NFK
+nc.tr,"North Cyprus (unrecognised, self-declared state)",CYP
+kp,North Korea,PRK
+mk,North Macedonia,MKD
+uk,Northern Ireland,GBR
+mp,Northern Mariana Islands,MNP
+no,Norway,NOR
+om,Oman,OMN
+pk,Pakistan,PAK
+pw,Palau,PLW
+ps,Palestine,PSE
+pa,Panama,PAN
+pg,Papua New Guinea,PNG
+py,Paraguay,PRY
+pe,Peru,PER
+ph,Philippines,PHL
+pn,Pitcairn Islands,PCN
+pl,Poland,POL
+pt,Portugal,PRT
+pr,Puerto Rico,PRI
+qa,Qatar,QAT
+re,Réunion (French overseas department),???
+ro,Romania,ROU
+ru,Russia,RUS
+rw,Rwanda,RWA
+bq,Saba,BES
+an,Netherlands Antilles,NLD
+bl,Saint Barthélemy,BLM
+gp,Guadeloupe,GLP
+fr,France,FRA
+sh,Saint Helena,SHN
+kn,Saint Kitts and Nevis,KNA
+lc,Saint Lucia,LCA
+mf,Saint Martin,MAF
+vc,Saint Vincent and the Grenadines,VCT
+pm,Saint-Pierre and Miquelon (French overseas collectivity),SPM
+ws,Samoa,WSM
+sm,San Marino,SMR
+st,São Tomé and Príncipe,STP
+sa,Saudi Arabia,SAU
+uk,Scotland,???
+sn,Senegal,SEN
+rs,Serbia,SRB
+sc,Seychelles,SYC
+sl,Sierra Leone,SLE
+sg,Singapore,SGP
+bq,Sint Eustatius,BES
+sx,Sint Maarten,SXM
+sk,Slovakia,SVK
+si,Slovenia,SVN
+sb,Solomon Islands,SLB
+so,Somalia,SOM
+so,Somaliland,???
+za,South Africa,ZAF
+gs,South Georgia and the South Sandwich Islands,SGS
+kr,South Korea,KOR
+ss,South Sudan,SSD
+es,Spain,ESP
+lk,Sri Lanka,LKA
+sd,Sudan,SDN
+sr,Suriname (Surinam),SUR
+sj,Svalbard and Jan Mayen Islands,SJM
+sz,Swaziland,???
+se,Sweden,SWE
+ch,Switzerland,CHE
+sy,Syria,SYR
+pf,"Tahiti (the largest island in French Polynesia, an overseas collectivity of France)",???
+tw,Taiwan,TWN
+tj,Tajikistan,TJK
+tz,Tanzania,TZA
+th,Thailand,THA
+tg,Togo,TGO
+tk,Tokelau,TKL
+to,Tonga,TON
+tt,Trinidad and Tobago,TTO
+tn,Tunisia,TUN
+tr,Turkey,TUR
+tm,Turkmenistan,TKM
+tc,Turks and Caicos Islands,TCA
+tv,Tuvalu,TUV
+ug,Uganda,UGA
+ua,Ukraine,UKR
+ae,United Arab Emirates (UAE),ARE
+uk,United Kingdom (UK),GBR
+us,United States of America (USA),USA
+vi,United States Virgin Islands,VIR
+uy,Uruguay,URY
+uz,Uzbekistan,UZB
+vu,Vanuatu,VUT
+va,Vatican City,ITA
+ve,Venezuela,VEN
+vn,Vietnam,VNM
+uk,Wales,GBR
+wf,Wallis and Futuna (French overseas collectivity),WLF
+ps,West Bank (Palestine),PSE
+eh,Western Sahara,ESH
+ye,Yemen,YEM
+zm,Zambia,ZMB
+zw,Zimbabwe,ZWE

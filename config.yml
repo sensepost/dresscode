@@ -1,0 +1,67 @@
+db_environments:
+  majestic:
+    user: root
+    password: Headers123!
+    host: 127.0.0.1
+    port: 27017
+    database: headers
+    headers_coll: headers_get
+    orphans_coll: orphan
+  umbrella:
+    user: root
+    password: Headers123!
+    host: 127.0.0.1
+    port: 27017
+    database: headers
+    headers_coll: headers_umbrella
+    orphans_coll: orphans
+general:
+  scrapeops: <your-scrapeops-api-key>
+  abusable_domains:
+    - '*.amazonaws.com': 
+      - exfil
+      - exec
+    - '*.cloudfront.net':
+      - exfil
+      - exec
+    - '*.jsdelivr.com':
+      - exec
+    - 'cdn.jsdelivr.net':
+      - exec
+    - '*.facebook.com':
+      - exfil
+    - '*.hotjar.com':
+      - exfil
+    - '*.herokuapp.com':
+      - exfil
+      - exec
+    - '*.firebaseapp.com':
+      - exfil
+      - exec
+    - '*.google-analytics.com':
+      - exfil
+    - '*.azurestaticapps.net':
+      - exfil
+      - exec
+    - '*.azurewebsites.net':
+      - exfil
+      - exec
+  vulns_explanation:
+    UNDEFINED: Undefined vulnerability
+    NOCSP: No CSP policy was defined
+    UNSAFEINLINE: The value 'unsafe-inline' was found in the directive {}.
+    UNSAFEEVAL: The value 'unsafe-eval' was found in the directive {}.
+    LENIENTSCHEME: The policy contained a lenient scheme handler, such as https:// or http:// within the directive {}. This could allow attackers to include any external resource as a source of the affected directive, as long as it follows the protocol indicated in the handle.
+    CSPRO: Only the header 'Content-Security-Policy-Report-Only' was found. No policy is Content Security Policy is enforced in this case.
+    THIRDPARTYABUSE: 'Third-party domains that could be abused were found in the directive {}: {}'
+    DEFAULTSRC: The directive 'default-src' was not found. This is a critical fallback directive for cases where specific directives are not defined, such as script-src, object-src, or font-src
+    FRAMEANCESTORS: The directive 'frame-ancestors' was not found. This would allow an attacker to embed this page into another one with <frame> and similar elements for clickjacking attacks.
+    REPORTTO: The directive 'report-to' was not found. It is recommended to report all CSP error to centralised infrastructure for early detection of XSS attempts.
+    BASEURI: The directive 'base-uri' was not found. This would allow an attacker to inject a malicious <base> element to produce all relative paths to be pointed at the malicious base URI.
+    UPGRIR: The directive 'upgrade-insecure-request' was not found. This directive indicates the browser to upgrade all resources included in the site from http:// to https://.
+    NDSCRIPTSRC: The directives 'script-src' and 'default-src' were not found.
+    NDCONNECTSRC: The directives 'connect-src' and 'default-src' were not found.
+    NDFRAMESRC: The directives 'frame-src' and 'default-src' were not found.
+    NDCHILDSRC: The directives 'child-src' and 'default-src' were not found.
+    NDOBJECTSRC: The directives 'object-src' and 'default-src' were not found.
+    ORPHANDOMAIN: The domain '{}', present in the directive {}, is not registered.
