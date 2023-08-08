@@ -6,11 +6,11 @@ import logging
 from datetime import datetime
 from geoip2.errors import AddressNotFoundError
 
-logging.basicConfig(filename=datetime.now().strftime('logs/update-country-%Y%m%d_%H:%M:%S.log'),
-                    filemode='a',
-                    format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                    datefmt='%Y%m%d_%H:%M:%S',
-                    level=logging.DEBUG)
+# logging.basicConfig(filename=datetime.now().strftime('logs/update-country-%Y%m%d_%H:%M:%S.log'),
+#                     filemode='a',
+#                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+#                     datefmt='%Y%m%d_%H:%M:%S',
+#                     level=logging.DEBUG)
 
 # config=get_config()
 # collection=get_mongo_collection(config)

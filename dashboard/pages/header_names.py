@@ -34,7 +34,7 @@ n_top_directive_names = 15
      Input(component_id="collection-data",component_property="data")]
 )
 def reload_all_graphs(stored_data,n_limit_header_names,n_limit_directive_names,collection_data):
-    
+    print("collection_data: "+collection_data) 
     config=get_config(collection_data)
     collection = get_headers_collection(config)
     find_limit=stored_data["find_limit"]
@@ -46,7 +46,7 @@ def reload_all_graphs(stored_data,n_limit_header_names,n_limit_directive_names,c
     # Make all the headers lowercase 
     print("Beautifying headers")
     # data_df["headers"] = data_df["headers"].map(lambda x: array_to_dict(x,tolower=True))
-    data_df["headers_lower"]=data_df["headers"].map(lambda x: dict((k.lower(), v.lower()) for k,v in x.items()))
+    data_df["headers_lower"]=data_df["headers"].map(lambda x: dict((k.lower(), v.lower()) for k,v in x.items()) if x is not None else None)
     # Prepare CSP data to visualise sites and directives, etc. Indicate that all headers have been changed to lowercase
     # print("Parsing CSP headers")
     # csp_cspro=data_df["headers_lower"].map(lambda x: parse_csp(x,lower=True))

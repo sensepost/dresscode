@@ -1,7 +1,7 @@
 from dash import Dash, html, dcc
 import dash
 from dash.dependencies import Input,Output,State
-from utils.utils import get_config,get_headers_collection
+from utils.utils import get_config,get_headers_collection,get_environments
 import locale
 locale.setlocale(locale.LC_ALL, '')  
 
@@ -87,7 +87,7 @@ app.layout = html.Div(id="main-container",
         id="div-percentage",
         children=[
         dcc.Dropdown(
-            options=["majestic","umbrella"],
+            options=get_environments(),
             value="majestic",
             id="collection-dropdown"
         ),

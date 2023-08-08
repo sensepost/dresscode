@@ -51,6 +51,7 @@ def show_hide_element(value):
      Input(component_id="collection-data",component_property="data")]
 )
 def reload_all_graphs(stored_data,selected_header,selected_directive,n_limit_directives,n_limit_headers,collection_data):
+    print("CSP - Directives showing collection: "+collection_data)
     config=get_config(collection_data)
     collection = get_headers_collection(config)
 
@@ -63,7 +64,7 @@ def reload_all_graphs(stored_data,selected_header,selected_directive,n_limit_dir
     data_df = pd.DataFrame(list(collection.find({},{"url":1,"headers":1,"csp":1}).limit(find_limit)))
     # Beautify the "headers" Series
     # data_df["headers"] = data_df["headers"].map(lambda x: array_to_dict(x,tolower=True))
-    data_df["headers_lower"]=data_df["headers"].map(lambda x: dict((k.lower(), v.lower()) for k,v in x.items()))
+    data_df["headers_lower"]=data_df["headers"].map(lambda x: dict((k.lower(), v.lower()) for k,v in x.items()) if x is not None else None)
     # Prepare CSP data to visualise sites and directives, etc
     # csp_cspro=data_df["headers_lower"].map(lambda x: parse_csp(x,lower=True))
     # csp_columns_df=pd.DataFrame(csp_cspro.tolist(),columns=["csp","cspro"])

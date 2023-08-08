@@ -98,3 +98,9 @@ def get_orphans_collection(config):
     mongoclient = MongoClient("mongodb://{u}:{p}@{h}:{P}/".format(u=config["db"]["user"],p=config["db"]["password"],h=config["db"]["host"],P=config["db"]["port"]))
     db = mongoclient.get_database(config["db"]["database"])
     return db.get_collection(config["db"]["orphans_coll"])
+
+def get_environments():
+    config=None
+    with open("%s/../../config.yml" % pathlib.Path(__file__).parent.resolve(),"r") as cfgf:
+        config=yaml.load(cfgf,Loader=yaml.FullLoader)
+    return list(config["db_environments"].keys())

@@ -20,12 +20,23 @@ logging.basicConfig(filename=datetime.now().strftime('logs/update-orphans-%Y%m%d
                     datefmt='%Y%m%d_%H:%M:%S',
                     level=logging.DEBUG)
 
+def p(v):
+    return [res.strip() for res in v.split(",")]
+
+def parse_resolvers(option, opt, value, parser):
+    setattr(parser.values,option.dest, p(value) )
+
 def parse_options():
     parser = OptionParser()
     parser.add_option("-e", "--environment", dest="environment",
                   help="Database Environment",  default="majestic")
-    parser.add_option("-r", "--resolvers", dest="resolvers",
-                  help="List of DNS resolvers separated by comma",  default="8.8.8.8,1.1.1.1,8.8.4.4,8.26.56.26,208.67.222.222")
+    parser.add_option("-r", "--resolvers", 
+                      dest="resolvers",
+                      help="List of DNS resolvers separated by comma",  
+                      default=['8.8.8.8','1.1.1.1','8.8.4.4','8.26.56.26','208.67.222.222'],
+                      action="callback",
+                      callback=parse_resolvers,
+                      type="string")
     parser.add_option("-v", "--verbose",
                   action="store_true", dest="verbose", default=False,
                   help="Be verbose")
@@ -103,8 +114,8 @@ def main():
     orphans_coll=get_orphans_collection(config)
 
     resolver = Resolver()
-    rlist = [res.strip() for res in options.resolvers.split(",")]
-    resolver.nameservers=rlist # ["8.8.8.8","1.1.1.1","8.8.4.4","8.26.56.26","208.67.222.222"]
+    # rlist = [res.strip() for res in options.resolvers.split(",")]
+    resolver.nameservers=options.resolvers # ["8.8.8.8","1.1.1.1","8.8.4.4","8.26.56.26","208.67.222.222"]
 
     filter = {"vulnerabilities.NOCSP": {'$exists': 0}}
     # n_documents = collection.count_documents(filter)
