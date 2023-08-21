@@ -35,6 +35,10 @@ I would like to:
 * Execute the poll every few months to see the evolution of the security status.
 * Increase the number of sites to scan
 
+# License
+
+dresscode is licensed under a [GNU General Public v3 License](https://www.gnu.org/licenses/gpl-3.0.en.html). Permissions beyond the scope of this license may be available at http://sensepost.com/contact/.
+
 # Feedback
 
 PRs are welcome.
