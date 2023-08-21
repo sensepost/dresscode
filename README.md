@@ -3,7 +3,7 @@ Dress Code - CSP Headers Mass Scanner
 
 # Context
 
-This repository is the outcome of my research on the current status of Content-Security-Policy (CSP). I have presented the conclussions in Defcon 31 Appsec Village (https://www.appsecvillage.com/events/dc-2023) and I will be presenting it as well in Sector 2023 (https://www.blackhat.com/sector/2023/). 
+This repository is the outcome of my research on the current status of Content-Security-Policy (CSP). I have presented the conclussions of this work in Defcon 31 Appsec Village (https://www.appsecvillage.com/events/dc-2023) and I will be presenting it as well in Sector 2023 (https://www.blackhat.com/sector/2023/). 
 
 # Summary
 
