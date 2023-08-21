@@ -19,7 +19,6 @@ data=pd.DataFrame()
 
 config=get_config()
 collection = get_headers_collection(config)
-# total_documents = collection.count_documents({})
 
 #### DASH CALLBACKS ###
 
@@ -64,7 +63,42 @@ def reload_all_graphs(stored_data,collection_data):
                             # color_discrete_sequence=px.colors.qualitative.Alphabet)
     cspvsnocsp_fig.update_traces(marker_line_width=1.5, opacity=0.75,textinfo="percent+value")
 
-    return cspvsnocsp_fig 
+    return cspvsnocsp_fig
+
+
+def get_comparison_figure():
+    # Now show a bar chart with the percentage of sites using CSP of the top 1000, top 10000, and top 100000
+    # csp
+    n_with_csp_1=collection.aggregate([{'$sort': {"globalRank": 1}},{'$limit': 1000},{ '$match': {"vulnerabilities.NOCSP": { '$exists': 0}}},{'$count': "n_csp" }]).next()["n_csp"]
+    n_with_csp_2=collection.aggregate([{'$sort': {"globalRank": 1}},{'$limit': 10000},{ '$match': {"vulnerabilities.NOCSP": { '$exists': 0}}},{'$count': "n_csp" }]).next()["n_csp"]
+    n_with_csp_3=collection.aggregate([{'$sort': {"globalRank": 1}},{'$limit': 100000},{ '$match': {"vulnerabilities.NOCSP": { '$exists': 0}}},{'$count': "n_csp" }]).next()["n_csp"]
+    # csp report-only
+    n_with_cspro_1=collection.aggregate([{'$sort': {"globalRank": 1}},{'$limit': 1000},{  '$match': {"vulnerabilities.CSPRO": { '$exists': 1}}}, {'$match': {"vulnerabilities.NOCSP": {'$exists': 1}}} ,{'$count': "n_cspro" }]).next()["n_cspro"]
+    n_with_cspro_2=collection.aggregate([{'$sort': {"globalRank": 1}},{'$limit': 10000},{  '$match': {"vulnerabilities.CSPRO": { '$exists': 1}}}, {'$match': {"vulnerabilities.NOCSP": {'$exists': 1}}} ,{'$count': "n_cspro" }]).next()["n_cspro"]
+    n_with_cspro_3=collection.aggregate([{'$sort': {"globalRank": 1}},{'$limit': 100000},{  '$match': {"vulnerabilities.CSPRO": { '$exists': 1}}}, {'$match': {"vulnerabilities.NOCSP": {'$exists': 1}}} ,{'$count': "n_cspro" }]).next()["n_cspro"]
+    # No CSP or CSPRO
+    n_wo_csp_1=collection.aggregate([{'$sort': {"globalRank": 1}},{'$limit': 1000},{ '$match': {"vulnerabilities.NOCSP": { '$exists': 1}}},{'$count': "n_no_csp"}]).next()["n_no_csp"]
+    n_wo_csp_2=collection.aggregate([{'$sort': {"globalRank": 1}},{'$limit': 10000},{ '$match': {"vulnerabilities.NOCSP": { '$exists': 1}}},{'$count': "n_no_csp"}]).next()["n_no_csp"]
+    n_wo_csp_3=collection.aggregate([{'$sort': {"globalRank": 1}},{'$limit': 100000},{ '$match': {"vulnerabilities.NOCSP": { '$exists': 1}}},{'$count': "n_no_csp"}]).next()["n_no_csp"]
+
+    p_csp_1=round(n_with_csp_1/n_wo_csp_1*100,1)
+    p_csp_2=round(n_with_csp_2/n_wo_csp_2*100,1)
+    p_csp_3=round(n_with_csp_3/n_wo_csp_3*100,1)
+
+    comparison_df=pd.DataFrame({
+        "CSP": ["Top 1000", "Top 10000", "Top 100000"],
+        "Percentage":[p_csp_1,p_csp_2,p_csp_3]
+        })
+
+    comparison_fig = px.bar(comparison_df,
+                              x="CSP",
+                              y="Percentage",
+                              text_auto=True)
+    comparison_fig.update_layout(title="Comparison of CSP usage between the top 1000, 10000, and 100000 sites")
+    comparison_fig.update_traces(marker_color='rgb(158,202,225)', marker_line_color='rgb(8,48,107)',
+                  marker_line_width=1.5, opacity=0.7)
+
+    return comparison_fig
 
 #### APP LAYOUT ####
 
@@ -76,7 +110,9 @@ layout = html.Div(
             id="loading-pie",
             children=[
                 html.H2("Sites Defining a Content Security Policy"),
-                dcc.Graph(id="graph-csp-vs-nocsp",style={'width': '80%', 'height': '80vh'})
+                dcc.Graph(id="graph-csp-vs-nocsp",style={'width': '80%', 'height': '80vh'}),
+                html.H2("Comparison of CSP usage between the top 1000, 10000, and 100000 sites"),
+                dcc.Graph(id="graph-comparison",style={'width': '80%', 'height': '80vh'},figure=get_comparison_figure())
             ]
         ),
     ]

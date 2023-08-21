@@ -10,8 +10,9 @@ Then, the libraries in Pipfile should be installed by issuing the following comm
 pipenv install
 pipenv shell
 ```
-## Database
-The scrip assumes a MongoDB database is running somewhere. I've added a Docker Compose  file in mongodb/docker-compose.yml. To run a MongoDB run the following commands:
+## Database setup
+The scrip assumes a MongoDB database is running somewhere. I've added a Docker Compose  file in mongodb/docker-compose.yml to ease the local setup, but you can run another MongoDB wherever you want.
+If you decide to use the docker MongoDB instance, edit the file [mongodb/docker-compose.yml](mongodb/docker-compose.yml) and personalise the values of "<db user>", "<db pass>", "<express user>", and "<express pass>". Then, to run the server, execute the following commands:
 ```
 cd mongodb
 docker-compose up

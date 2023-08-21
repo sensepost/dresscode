@@ -32,6 +32,8 @@ general:
       - exfil
     - '*.hotjar.com':
       - exfil
+    - 'ask.hotjar.com':
+      - exfil
     - '*.herokuapp.com':
       - exfil
       - exec

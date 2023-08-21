@@ -17,6 +17,12 @@ You can use this project to see with what is the current health status of CSP ac
 
 As long as the input file contains two columns with "Rank" and "Domain/URL", you can use other file sources, such as your own client domain list or the ol' Alexa top 1 million (http://s3.amazonaws.com/alexa-static/top-1m.csv.zip).
 
+# Disclaimer
+
+A large number of sites have to be scanned for the dashboard to work properly, currently, the Dash code has not been optimised to cater with exceptions produced by an insufficient number of data to populate some datasets. E.g. if you scan 100 sites and none of them have CSP data defined, some parts of the dashboard will not be drawn due to exceptions produced during MongoDB queries or Pandas filtering operations. 
+
+I intend to fix this in future releases of the tool and present empty charts or a message indicating the lack of sufficient data to parse. But for now, an exception will occur. 
+
 # Usage
 
 To use the tool, refer to the [USAGE.md](USAGE.md) file.
