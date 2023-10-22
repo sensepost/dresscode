@@ -7,7 +7,6 @@ import logging
 from datetime import datetime
 from optparse import OptionParser
 import pandas as pd
-from tldextract import tldextract
 from dashboard.utils.utils import get_config,get_headers_collection
 import asyncio
 from time import time
@@ -68,7 +67,12 @@ def update_whois(db_document,whois_result,options,collection,mapping_df):
     if ("country" in whois_result["whois"].keys() and whois_result["whois"]['country'] is not None):
         try:
             logging.debug("Assigning the country %s to this record." % whois_result["whois"]["country"])
-            collection.update_one({'_id': db_document["_id"]}, { '$set': {'whois': {'IPv4': options.ip, 'whois_data': whois_result['whois']} , 'country': whois_result["whois"]['country'], 'continent': mapping_df[mapping_df["TLD"]==whois_result['whois']['country'].lower()].Continent.values[0]} })
+            collection.update_one({'_id': db_document["_id"]}, 
+                                  { '$set': {'whois': {'IPv4': options.ip, 'whois_data': whois_result['whois']} , 
+                                             'country': whois_result["whois"]['country'], 
+                                             'continent': mapping_df[mapping_df["TLD"]==whois_result['whois']['country'].lower()].Continent.values[0]
+                                            } 
+                                  })
             updated_whois+=1
         except Exception as ex:
             logging.error("Error updating this record in the DB with country and continent information: %s" % ex)

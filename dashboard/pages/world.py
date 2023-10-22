@@ -13,7 +13,7 @@ wold=None
 with open('data/countries.geojson',"r") as f:
     world = json.load(f)
 
-config=get_config()
+config=get_config(environment="majestic_snapshots")
 collection=get_headers_collection(config=config)
 
 @callback(
@@ -29,34 +29,41 @@ def update_maps(stored_data,collection_data):
     collection = get_headers_collection(config)
 
     find_limit=stored_data["find_limit"]
-    #csp_data=collection.find({"vulnerabilities.NOCSP": { '$exists': 0}},{'url': 1, "_id":0, "country": 1, "continent": 1, "vulnerabilities": 1}).limit(find_limit)
-    #nocsp_data=collection.find({"vulnerabilities.NOCSP": { '$exists': 1}},{'url': 1, "_id":0, "country": 1, "continent": 1,"vulnerabilities":1}).limit(find_limit)
 
     project = {'url': 1, 
                "_id":0, 
-               "country": 1, 
-               "continent": 1,
-               "vulnerabilities":1
+               "country": "$country.iso_code", 
+               "continent": "$continent.name",
+               "last_scan": "$last_scan",
+               "csp": {'$ifNull': [ "$last_scan.csp", {} ] }, 
+               "cspro": {'$ifNull': [ "$last_scan.cspro", {} ] },
+               "weaknesses": {'$ifNull': [ "$last_scan.weaknesses", {} ] }
                }
-    csp_data=collection.aggregate([{'$sort': {"globalRank": 1}},{'$limit': find_limit},{ '$match': {"vulnerabilities.NOCSP": { '$exists': 0}}},{'$project': project }])
-    nocsp_data=collection.aggregate([{'$sort': {"globalRank": 1}},{'$limit': find_limit},{ '$match': {"vulnerabilities.NOCSP": { '$exists': 1}}},{'$project': project}])
+    cursor=collection.aggregate([
+        { '$sort': { "scans.globalRank": 1 } },
+        {'$limit': find_limit},
+        {'$addFields': {'last_scan': { '$first': { '$sortArray': { 'input': "$scans", 'sortBy': { 'date': -1 } } } } } },
+        {'$project': project },
+        {'$addFields': { 
+            "size_csp": {'$size': {'$objectToArray': "$csp"}}, 
+            "size_cspro": {'$size': {'$objectToArray': "$cspro"}}, 
+            "n_vulns": {'$size': {'$objectToArray': "$weaknesses"}}
+            }
+        }])
 
     # Data Frame for sites without CSP defined
-    nocsp_df = pd.DataFrame(list(nocsp_data))
-    nocsp_df["tld"]=nocsp_df.url.map(lambda url: url.split(".")[-1])
-    nocsp_df["n_vulns"]=nocsp_df["vulnerabilities"].map(lambda x: len(x))
-    # Data Frame for sites with CSP defined
-    csp_df = pd.DataFrame(list(csp_data))
-    csp_df["tld"]=csp_df.url.map(lambda url: url.split(".")[-1])
-    csp_df["n_vulns"]=csp_df["vulnerabilities"].map(lambda x: len(x))
+    data_df = pd.DataFrame(list(cursor))
+    data_df["tld"]=data_df["url"].map(lambda url: url.split(".")[-1])
+    csp_df=data_df.query("size_csp>0")
+    nocsp_df=data_df.query("size_csp==0")
 
+    # Save some memory by removing the "last_scan" column from the dataframe
+    data_df.drop(columns="last_scan")
+    
     # Group the pd by country and count the number of vulnerabilities
-    nocsp_country_df=nocsp_df[nocsp_df["country"].map(lambda x: type(x)==dict)]
-    nocsp_country_df["country_iso"]=nocsp_country_df["country"].map(lambda x: x["iso_code"])
-    nocsp_country_df.groupby("country_iso")["n_vulns"].sum()
-    nocsp_country_n_vulns=dict(nocsp_country_df.groupby("country_iso").n_vulns.sum())
-    nocsp_country_n_vulns_mean=nocsp_country_df.groupby("country_iso").n_vulns.mean()
-    nocsp_country_n_sites=dict(nocsp_country_df.groupby("country_iso").n_vulns.count())
+    # Counts
+    nocsp_country_n_vulns=dict(nocsp_df.groupby("country").n_vulns.sum())
+    nocsp_country_n_sites=dict(nocsp_df.groupby("country").n_vulns.count())
     # There is a bug where "US" also appears as the ISO-3 code of "USA", fix that here:
     if ("US" in nocsp_country_n_vulns.keys()):
         nocsp_country_n_vulns["USA"]=nocsp_country_n_vulns["USA"]+nocsp_country_n_vulns.pop("US")
@@ -64,11 +71,10 @@ def update_maps(stored_data,collection_data):
         nocsp_country_n_sites["USA"]=nocsp_country_n_sites["USA"]+nocsp_country_n_sites.pop("US")
 
     # Now with csp_df
-    csp_country_df=csp_df[csp_df["country"].map(lambda x: type(x)==dict)]
-    csp_country_df["country_iso"]=nocsp_country_df["country"].map(lambda x: x["iso_code"])
-    csp_country_n_vulns=dict(csp_country_df.groupby("country_iso").n_vulns.sum())
-    csp_country_n_vulns_mean=csp_country_df.groupby("country_iso").n_vulns.mean()
-    csp_country_n_sites=dict(csp_country_df.groupby("country_iso").n_vulns.count())
+    # Counts
+    csp_country_n_vulns=dict(csp_df.groupby("country").n_vulns.sum())
+    csp_country_n_vulns_mean=csp_df.groupby("country").n_vulns.mean()
+    csp_country_n_sites=dict(csp_df.groupby("country").n_vulns.count())
     if ("US" in csp_country_n_vulns.keys()):
         csp_country_n_vulns["USA"]=csp_country_n_vulns["USA"]+csp_country_n_vulns.pop("US")
     if ("US" in csp_country_n_sites.keys()):
@@ -107,29 +113,30 @@ def update_maps(stored_data,collection_data):
 
     # Now, violin plots
     # Group the vulnerabilities per country
-    csp_country_df["continent_name"]=csp_country_df["continent"].map(lambda x: x["name"])
-    csp_country_filtered_df=csp_country_df[csp_country_df["continent_name"]!="Unknown"]
+    # csp_country_df["continent_name"]=csp_country_df["continent"].map(lambda x: x["name"])
+    csp_country_filtered_df=csp_df.query("continent!='Unknown'") # [csp_country_df["continent_name"]!="Unknown"]
     violin_fig = px.violin(csp_country_filtered_df, 
                            y="n_vulns",
-                           x="continent_name", 
+                           x="continent", 
                            box=True,
-                           color="continent_name",
+                           color="continent",
                            color_discrete_sequence=px.colors.qualitative.G10,
                            labels={
-                                "continent_name": "Continent",
+                                "continent": "Continent",
                                 "n_vulns": "Number of vulnerabilities"
                             })
 
     # Let's count the most popular vulnerabilities
     vulns_counter = {}
     def count_vulns(vc:dict,vulns:dict):
-        for k,v in vulns.items():
-            if (k not in vc.keys()):
-                vc[k]=0
-            else:
-                vc[k]+=1
+        if (vulns is not None):
+            for k,v in vulns.items():
+                if (k not in vc.keys()):
+                    vc[k]=1
+                else:
+                    vc[k]+=1
 
-    csp_df["vulnerabilities"].map(lambda x: count_vulns(vulns_counter,x))
+    csp_df["weaknesses"].map(lambda x: count_vulns(vulns_counter,x))
     vc_df = pd.DataFrame.from_dict(data={"Total": vulns_counter})
     vc_df.sort_values("Total",ascending=False,inplace=True)
 

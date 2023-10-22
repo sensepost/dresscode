@@ -17,7 +17,7 @@ register_page(__name__)
 find_limit=10000
 data=pd.DataFrame()
 
-config=get_config()
+config=get_config(environment="majestic_snapshots")
 collection = get_headers_collection(config)
 total_documents = collection.count_documents({})
 n_top_directive_values = 15
@@ -61,10 +61,21 @@ def reload_all_graphs(stored_data,selected_header,selected_directive,n_limit_dir
     find_limit=stored_data["find_limit"]
     print("Values - showing %s documents in graphs" % find_limit)
     # data = pd.DataFrame(list(collection.aggregate([{'$limit': find_limit},{'$match': {'headers.{}'.format(selected_header) : {'$exists': 1}}},{'$project': {"url":1, "headers":1 }}])))
-    data_df = pd.DataFrame(list(collection.find({},{"url":1,"headers":1,"csp":1}).limit(find_limit)))
+    data_df = pd.DataFrame(list(collection.aggregate([
+        { '$sort': { "scans.globalRank": 1 } },
+        { '$limit': find_limit }, 
+        { '$addFields': { 'last_scan': { '$first': { '$sortArray': { 'input': "$scans", 'sortBy': { 'date': -1 } } } } } }, 
+        { '$addFields': { 'headers_kv': { '$objectToArray': "$last_scan.headers" }, "csp_kv": {'$objectToArray': "$last_scan.csp"} } },
+        { '$match': { 
+            "headers_kv.k": { '$regex': '^{}$'.format(selected_header), '$options': "i" }, 
+            "csp_kv.k": {'$regex': "^{}$".format(selected_directive), '$options': "i" } 
+            } 
+        }, 
+        {'$project': {"url": 1, "headers": "$last_scan.headers", "csp": "$last_scan.csp" }}])))
+
     # Beautify the "headers" Series
     # data_df["headers"] = data_df["headers"].map(lambda x: array_to_dict(x,tolower=True))
-    data_df["headers_lower"]=data_df["headers"].map(lambda x: dict((k.lower(), v.lower()) for k,v in x.items()) if x is not None else None)
+    data_df["headers_lower"]=data_df["headers"].map(lambda x: dict((k.lower(), v.lower()) for k,v in x.items()) if x is not None else {})
     # Prepare CSP data to visualise sites and directives, etc
     # csp_cspro=data_df["headers_lower"].map(lambda x: parse_csp(x,lower=True))
     # csp_columns_df=pd.DataFrame(csp_cspro.tolist(),columns=["csp","cspro"])
@@ -75,7 +86,7 @@ def reload_all_graphs(stored_data,selected_header,selected_directive,n_limit_dir
     csp_data=data_df[data_df["csp"].notnull()]
     # csp_data=csp_data[csp_data["csp"].map(lambda x: "" not in x.keys())]
     # Freeing up some memory
-    csp_columns_df=None
+    # csp_columns_df=None
 
     # List unique header names
     header_names,counts_headers = np.unique(np.hstack(data_df["headers_lower"].map(lambda x: list(x.keys())).values),return_counts=True)

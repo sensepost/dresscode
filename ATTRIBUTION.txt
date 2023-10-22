@@ -1,0 +1,2 @@
+The following third-party repositories have been used for this project:
+* Plotly: https://github.com/plotly - For the library and geographical datasets - MIT License - It can be read here: https://github.com/plotly/datasets/blob/master/LICENSE

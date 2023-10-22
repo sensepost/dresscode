@@ -88,7 +88,7 @@ app.layout = html.Div(id="main-container",
         children=[
         dcc.Dropdown(
             options=get_environments(),
-            value="majestic",
+            value="majestic_snapshots",
             id="collection-dropdown"
         ),
         html.H2("Limit of data to load from database"),
@@ -115,4 +115,4 @@ app.layout = html.Div(id="main-container",
 ])
 
 if __name__ == '__main__':
-    app.run(debug=True,host="0.0.0.0")
+    app.run(debug=False,host="0.0.0.0")

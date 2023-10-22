@@ -65,9 +65,7 @@ if __name__ == '__main__':
         subprocess.run(["python","flag_vulnerabilities.py","-e",options.environment])
         print(" Weaknesses detection has finished.")
         
-        print("3. Detecting weaknesses - Orphan domains")
-        subprocess.run(["python","update_orphan_domains.py","-e",options.environment])
-        print(" Updating orphan domains in the DB finished.") 
+        print("3. Updating orphan domains collection and detecting weaknesses - Orphan domains")
         subprocess.run(["python","flag_orphan_domains.py","-e",options.environment])
         print(" Detecting orphan domains in the database has finished.")
         

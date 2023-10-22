@@ -80,7 +80,7 @@ def parse_hsts(headers,lower=False):
         return None
         
 
-def get_config(environment="majestic") :
+def get_config(environment="majestic_snapshots") :
     config=None
     with open("%s/../../config.yml" % pathlib.Path(__file__).parent.resolve(),"r") as cfgf:
         config=yaml.load(cfgf,Loader=yaml.FullLoader)

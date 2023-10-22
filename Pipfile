@@ -18,6 +18,7 @@ dnspython = "*"
 pyyaml = "*"
 geoip2 = "*"
 brotli = "*"
+mongoengine = "*"
 
 [dev-packages]
 

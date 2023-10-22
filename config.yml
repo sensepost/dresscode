@@ -1,22 +1,14 @@
 db_environments:
-  majestic:
+  majestic_snapshots:
     user: root
     password: Headers123!
     host: 127.0.0.1
     port: 27017
     database: headers
-    headers_coll: headers_get
+    headers_coll: header_scans
     orphans_coll: orphan
-  umbrella:
-    user: root
-    password: Headers123!
-    host: 127.0.0.1
-    port: 27017
-    database: headers
-    headers_coll: headers_umbrella
-    orphans_coll: orphans
 general:
-  scrapeops: <your-scrapeops-api-key>
+  scrapeops: 855523ae-8c95-4594-91a7-8b01de2a028f
   abusable_domains:
     - '*.amazonaws.com': 
       - exfil
@@ -28,11 +20,13 @@ general:
       - exec
     - 'cdn.jsdelivr.net':
       - exec
+    - 'www.facebook.com':
+      - exfil
     - '*.facebook.com':
       - exfil
     - '*.hotjar.com':
       - exfil
-    - 'ask.hotjar.com':
+    - 'ask.hotjar.io':
       - exfil
     - '*.herokuapp.com':
       - exfil
@@ -40,6 +34,10 @@ general:
     - '*.firebaseapp.com':
       - exfil
       - exec
+    # It is possible to exfiltrate to googletagmanager.com by using custom events as well
+    # https://www.analyticsmania.com/post/google-tag-manager-custom-event-trigger/
+    # Integrate the custom event submision to Hotjar following this:
+    # https://help.hotjar.com/hc/en-us/articles/4412561401111-How-to-Send-Events-with-Google-Tag-Manager
     - '*.google-analytics.com':
       - exfil
     - '*.azurestaticapps.net':
@@ -51,19 +49,19 @@ general:
   vulns_explanation:
     UNDEFINED: Undefined vulnerability
     NOCSP: No CSP policy was defined
-    UNSAFEINLINE: The value 'unsafe-inline' was found in the directive {}.
-    UNSAFEEVAL: The value 'unsafe-eval' was found in the directive {}.
-    LENIENTSCHEME: The policy contained a lenient scheme handler, such as https:// or http:// within the directive {}. This could allow attackers to include any external resource as a source of the affected directive, as long as it follows the protocol indicated in the handle.
-    CSPRO: Only the header 'Content-Security-Policy-Report-Only' was found. No policy is Content Security Policy is enforced in this case.
-    THIRDPARTYABUSE: 'Third-party domains that could be abused were found in the directive {}: {}'
-    DEFAULTSRC: The directive 'default-src' was not found. This is a critical fallback directive for cases where specific directives are not defined, such as script-src, object-src, or font-src
-    FRAMEANCESTORS: The directive 'frame-ancestors' was not found. This would allow an attacker to embed this page into another one with <frame> and similar elements for clickjacking attacks.
-    REPORTTO: The directive 'report-to' was not found. It is recommended to report all CSP error to centralised infrastructure for early detection of XSS attempts.
-    BASEURI: The directive 'base-uri' was not found. This would allow an attacker to inject a malicious <base> element to produce all relative paths to be pointed at the malicious base URI.
-    UPGRIR: The directive 'upgrade-insecure-request' was not found. This directive indicates the browser to upgrade all resources included in the site from http:// to https://.
-    NDSCRIPTSRC: The directives 'script-src' and 'default-src' were not found.
-    NDCONNECTSRC: The directives 'connect-src' and 'default-src' were not found.
-    NDFRAMESRC: The directives 'frame-src' and 'default-src' were not found.
-    NDCHILDSRC: The directives 'child-src' and 'default-src' were not found.
-    NDOBJECTSRC: The directives 'object-src' and 'default-src' were not found.
-    ORPHANDOMAIN: The domain '{}', present in the directive {}, is not registered.
+    UNSAFEINLINE: The value 'unsafe-inline' found in  '{}'.
+    UNSAFEEVAL: The value 'unsafe-eval' found in '{}'.
+    LENIENTSCHEME: The policy contained a lenient handler in '{}'.
+    CSPRO: Header 'Content-Security-Policy-Report-Only' was found, but 'Content-Security-Policy' was not.
+    THIRDPARTYABUSE: Detected in '{}' - {}
+    NODEFAULTSRC: The directive 'default-src' was not found.
+    NOFRAMEANCESTORS: The directive 'frame-ancestors' was not found. 
+    NOREPORTTO: Neither 'report-to' nor 'report-uri' were found. 
+    NOBASEURI: The directive 'base-uri' was not found. 
+    NOUPGRIR: The directive 'upgrade-insecure-request' was not found.
+    NOSCRIPTSRC: The directives 'script-src' and 'default-src' were not found.
+    NOCONNECTSRC: The directives 'connect-src' and 'default-src' were not found.
+    NOFRAMESRC: The directives 'frame-src' and 'default-src' were not found.
+    NOCHILDSRC: The directives 'child-src' and 'default-src' were not found.
+    NOOBJECTSRC: The directives 'object-src' and 'default-src' were not found.
+    ORPHANDOMAIN: Domain '{}', in '{}' of the '{}' header, is not found (NXDOMAIN and no WHOIS)

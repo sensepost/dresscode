@@ -13,7 +13,7 @@ from optparse import OptionParser
 import logging
 from dashboard.utils.utils import get_config,get_headers_collection,parse_csp
 from time import time
-from datetime import datetime
+from datetime import datetime, timezone
 import pandas as pd
 from dns.resolver import Resolver,NoAnswer
 from dns.exception import DNSException
@@ -30,18 +30,44 @@ logging.basicConfig(filename=datetime.now().strftime('logs/pollheaders-%Y%m%d_%H
 
 def parse_options():
     parser = OptionParser()
-    parser.add_option("-f", "--file", dest="file",
-                  help="Input file with domain list or URL list", metavar="FILE")
-    parser.add_option("-c", "--chunksize", dest="chunksize",
-                  help="Chunk size (default: 1000)", type="int", default=1000)
-    parser.add_option("-e", "--environment", dest="environment",
-                  help="Environment name (default: majestic)", default="majestic")
-    parser.add_option("-s", "--scrapeops", dest="scrapeops",
-                  help="Use scrapeops random headers (default: False)", action="store_true", default=False)
-    parser.add_option("-o", "--offset", dest="offset",
-                  help="Offset of the input file to start the scans from (default: 0)", type="int", default=0)
-    parser.add_option("-t", "--timeout", dest="timeout",
-                  help="Timeout of http connections in seconds (default: 50)", type="int", default=50)
+    parser.add_option("-f", "--file", 
+                      dest="file",
+                      help="Input file with domain list or URL list", 
+                      metavar="FILE")
+    parser.add_option("-c", "--chunksize", 
+                      dest="chunksize",
+                      help="Chunk size (default: 1000)", 
+                      type="int", 
+                      default=1000)
+    parser.add_option("-e", "--environment", 
+                      dest="environment",
+                      help="Environment name (default: majestic)", 
+                      default="majestic")
+    parser.add_option("-s", "--scrapeops", 
+                      dest="scrapeops",
+                      help="Use scrapeops random headers (default: False)", 
+                      action="store_true", 
+                      default=False)
+    parser.add_option("-o", "--offset", 
+                      dest="offset",
+                      help="Offset of the input file to start the scans from (default: 0)", 
+                      type="int", 
+                      default=0)
+    parser.add_option("-t", "--timeout", 
+                      dest="timeout",
+                      help="Timeout of http connections in seconds (default: 50)", 
+                      type="int", 
+                      default=50)
+    parser.add_option("-E", "--no-new-empty", 
+                      action="store_true",
+                      dest="nonewempty",
+                      default=False,
+                      help="Do not create the new scan record if we could not connect to the site and as result, we have empty headers")
+    parser.add_option("-O", "--overwrite", 
+                      action="store_true",
+                      dest="overwrite",
+                      default=False,
+                      help="Overwrite the last header scan results in the DB instead of creating a new record")
     parser.add_option("-v", "--verbose",
                   action="store_true", dest="verbose", default=False,
                   help="Be verbose")
@@ -55,15 +81,28 @@ def parse_options():
 gir = TLDIPResolver(options.environment)
 
 # Get the headers of one single URL
-async def get_headers_and_resolve(session,domain: str,rank: int,resolve=True,headers=None):
+async def get_headers_and_resolve(session,domain: str,rank: int = 9999999,resolve=True,headers=None):
     h=None
     url=schemed(domain)
     domain=domain.replace("https://","").replace("http://","")
     tld=url.split(".")[-1]
     country,continent=gir.get_tld_country_continent(tld)
-    item = {"_id": "%s__%s".replace(".","_").replace("/","_") % (url,url),"url": url, "final_url": url, "date": (datetime.now().strftime("%Y%m%d %H:%M:%S")),  "headers": None, "csp": None, "cspro": None, "globalRank": rank, "tld": tld, "domain": domain}
-    item["country"]={"iso_code": country, "reason": "ccTLD"}
-    item["continent"]={"name": continent, "reason": "ccTLD"}
+    item = {
+        "_id": "%s__%s".replace(".","_").replace("/","_") % (url,url), 
+        "url": url, 
+        "final_url": url, 
+        "host": domain, 
+        "tld": tld ,  
+        "date": datetime.now(tz=timezone.utc),  
+        "headers": None, 
+        "csp": None, 
+        "cspro": None, 
+        "globalRank": rank, 
+        "weaknesses": None,
+        "country": {"iso_code": country, "reason": "ccTLD"},
+        "continent": {"name": continent, "reason": "ccTLD"},
+        "IPv4": None
+    }
 
     # Use a random header set from scrapeops
     if (headers is not None):
@@ -79,6 +118,9 @@ async def get_headers_and_resolve(session,domain: str,rank: int,resolve=True,hea
                 item["headers"]=sanitised_headers
                 item["csp"]=csp
                 item["cspro"]=cspro
+                if ((str(r.url)) != url):
+                    item["final_url"]=str(r.url)
+                    item["_id"] = "%s__%s".replace(".","_").replace("/","_") % (url,item["final_url"])
         else:
             async with session.get(url,allow_redirects=True,timeout=options.timeout,verify_ssl=False) as r:
                 # To prevent missing information, we normalise the information by lowercasing it all 
@@ -88,6 +130,10 @@ async def get_headers_and_resolve(session,domain: str,rank: int,resolve=True,hea
                 item["headers"]=sanitised_headers
                 item["csp"]=csp
                 item["cspro"]=cspro
+                if ((str(r.url)) != url):
+                    item["final_url"]=str(r.url)
+                    item["_id"] = "%s__%s".replace(".","_").replace("/","_") % (url,item["final_url"])
+
     except TimeoutError as e:
         logging.error("Timeout when connecting to %s: %s" % (url,e))
     except Exception as e:
@@ -136,6 +182,75 @@ def schemed(domain):
         return "https://%s" % domain
     return domain
 
+def update_last_scan(collection, last_scan: dict, scan_result, db_document):
+    # Save the lastscan scan date
+    last_scan["headers"]=scan_result["headers"]
+    last_scan["date"]=scan_result["date"]
+    last_scan["weaknesses"]=scan_result["weaknesses"] # Reset the weaknesses to None, as the headers might have changed
+    # lastscan["whois"]=None # Should I delete the whois? It takes so much time to query that I feel sad to destroy if it's already populated
+    # To update only one element in the array
+    # https://www.mongodb.com/docs/drivers/node/current/fundamentals/crud/write-operations/embedded-arrays/
+    last_scan["IPv4"]=scan_result["IPv4"]
+    last_scan["country"]=scan_result["country"]
+    last_scan["continent"]=scan_result["continent"]
+    last_scan["csp"]=scan_result["csp"]
+    last_scan["cspro"]=scan_result["cspro"]
+    collection.replace_one(
+        {'_id': scan_result['_id']},
+        db_document
+    )
+
+def insert_new_document(collection, scan_result):
+    new_entry={
+        "_id": scan_result["_id"], 
+        "url": scan_result["url"], 
+        "final_url": scan_result["final_url"], 
+        "host": scan_result["host"], 
+        "tld": scan_result["tld"] ,
+        "country": scan_result["country"], 
+        "continent": scan_result["continent"] ,
+        "scans": [
+            {
+                "date": scan_result["date"],
+                "headers": scan_result["headers"],
+                "weaknesses": scan_result["weaknesses"],
+                "IPv4": scan_result["IPv4"],
+                # Not updating the whois record
+                "globalRank": scan_result["globalRank"],
+                "csp": scan_result["csp"],
+                "cspro": scan_result["cspro"],
+            }
+        ]
+    }
+    collection.insert_one(new_entry)
+
+def new_scan_record(collection, scan_result: dict,db_document):
+    # We add a new record to the scans array
+    # reshape the document we just got of the Internet
+    new_scan={
+        "date": scan_result["date"],
+        "headers": scan_result["headers"],
+        "weaknesses": scan_result["weaknesses"],
+        "IPv4": scan_result["IPv4"],
+        # Not updating the whois record
+        "globalRank": scan_result["globalRank"],
+        "csp": scan_result["csp"],
+        "cspro": scan_result["cspro"],
+    }
+    # It may happen that the document pulled from DB don't have the "scans" array of DB 2.0
+    if ("scans" in db_document):
+        logging.debug("The document '%s' have a 'scans' array in the DB. Appending the new scan it." % db_document["_id"])
+        db_document["scans"].append(new_scan)
+    else:
+        logging.debug("The document '%s' do not have a 'scans' array in the DB. Creating it." % db_document["_id"])
+        db_document["scans"]=[new_scan]
+
+    # Update in the DB
+    collection.replace_one(
+        {'_id': scan_result['_id']},
+        db_document
+    )
+
 async def main():
     logging.debug("Reading from file %s in chunks of size %s" % (options.file, options.chunksize))
     # open db connection
@@ -144,6 +259,7 @@ async def main():
     collection = get_headers_collection(config)
     
     # Read the ranking and domains file
+    # TODO: Use the "skiprows" parameter of this method to save memory as well
     input_df=pd.read_csv(options.file,names=["rank","domain"],index_col="rank")
 
     # Proccess the list by slices of size chunksize
@@ -154,6 +270,8 @@ async def main():
     while (offset < len(input_df)):
         logging.info("Polling the headers of the slice at position %s" % offset)
         chunk=input_df.iloc[offset:offset+options.chunksize]
+        # To save some memory, remove the rows moved to "chunk" from the input_df dataframe
+        input_df.drop(input_df.iloc[offset:offset+options.chunksize].index,inplace=True)
 
         # Get a different set of headers for each chunk
         req_headers=None
@@ -171,38 +289,69 @@ async def main():
         session_timeout = aiohttp.ClientTimeout(total=options.timeout*1.5,sock_connect=options.timeout,sock_read=options.timeout)
         async with aiohttp.ClientSession(timeout=session_timeout,version=aiohttp.http.HttpVersion11) as session:
             logging.debug("Requesting headers of the sites: %s" % list(chunk.domain))
-            documents = await get_all_headers(session=session,urls_df=chunk,headers=req_headers)
+            # HEADS UP: This function returns an array of documents. 
+            # Each document is a dictionary without the "scans" array the DB currently has.
+            # It is a "plain" view of this specific scan and it has to be transformed to match the DB schema that I want to have on insertion time
+            scan_results = await get_all_headers(session=session,urls_df=chunk,headers=req_headers)
             
             # Search for the record in the db
             updated_documents=0
             new_documents=0
             new_emtpy_headers=0
-            for document in documents:
-                res=collection.find_one({'_id': document["_id"]})
-                if (res is not None and len(res)>0):
+            for scan_result in scan_results:
+                db_document=collection.find_one({'_id': scan_result["_id"]})
+                if (db_document is not None):
                     try:
-                        # This record exists. If we have headers but previously these were empty, update the record with good data
-                        if (len(document["headers"]) > 0):
-                            if (len(res["headers"])==0):
-                                logging.info("Updating headers of %s with valid values" % document["_id"])
-                                collection.update_one({'_id': document["_id"]}, { '$set': {'headers': document['headers'], 'date': (datetime.now().strftime("%Y%m%d %H:%M:%S")) } })
-                                updated_documents+=1
+                        # v2.0 - The software will insert a new snapshot of the headers within the "scans" array
+                        if (options.overwrite):
+                            if ("scans" in db_document):
+                                # If the user chose to overwrite the last scans results:
+                                db_document_scans = db_document["scans"]
+                                if (len(db_document_scans) > 0):
+                                    # Pick the most recent scan from the array of scans
+                                    last_scan=max(db_document_scans,key=lambda x: x["date"])
+                                    # This record exists. If we have headers but previously these were empty, update the record with good data
+                                    new_headers=scan_result["headers"]
+                                    previous_headers=last_scan["headers"]
+                                    if (new_headers is not None and len(new_headers) > 0):
+                                        # The previous headers were not populated last time, so we populate them now
+                                        if (previous_headers is not None and len(previous_headers)==0):
+                                            logging.info("Updating most recent scan headers of %s with valid values from this scan" % scan_result["_id"])
+                                            update_last_scan(collection, last_scan, scan_result, db_document)
+                                            updated_documents+=1
+                                        else:
+                                            logging.info("Not updating headers of '%s'. It was already populated." % scan_result["_id"])
+                                    else:
+                                        logging.info("Not updating headers of %s. We got an empty headers response" % scan_result["_id"])
                             else:
-                                logging.info("Not updating headers of %s. It already had good info in the DB." % document["domain"])
+                                logging.error("The record with _id '%s' does not have a 'scans' array" % scan_result["_id"])
                         else:
-                            logging.info("Not updating headers of %s. We got an empty headers response" % document["domain"])
+                            # Check if we want new empty records or not
+                            if (scan_result["headers"] is None or len(scan_result["headers"])==0):
+                                if (not options.nonewempty):
+                                    new_scan_record(collection, scan_result ,db_document)
+                                    updated_documents+=1
+                                    logging.debug("The new headers of '%s' were empty but we forced adding them to the new scans of the site." % scan_result["_id"])
+                                else:
+                                    logging.debug("The new headers of '%s' are empty. Not adding a new empty scan to the DB." % scan_result["_id"])
+                            else:
+                                new_scan_record(collection, scan_result ,db_document)
+                                updated_documents+=1
+                                logging.debug("The headers of '%s' were not empty. Adding a new scan item." % scan_result["_id"])
+                        
                     except Exception as e:
-                        logging.error("There was an error updating the headers of site %s in the database: %s" % (document["domain"],e))
+                        logging.error("There was an error updating the headers of site %s in the database: %s" % (scan_result["host"],e))
                 else:
                     try:
                         # Insert the new record
-                        logging.info("Inserting one new site: %s" % document["_id"])
-                        collection.insert_one(document)
+                        logging.info("Inserting one new site: %s" % scan_result["_id"])
+                        insert_new_document(collection, scan_result)
                         new_documents+=1
-                        if (document['headers']=={}):
+                        if (scan_result["headers"]=={} or scan_result["headers"] is None):
                             new_emtpy_headers+=1
+
                     except Exception as e:
-                        logging.error("There was an error inserting %s in the DB: %s" % (document,e))
+                        logging.error("There was an error inserting %s in the DB: %s" % (scan_result["_id"],e))
 
             logging.info("Udated %s headers with valid values" % updated_documents)
             logging.info("Inserted %s new documents (%s with empty headers)" % (new_documents,new_emtpy_headers))
@@ -223,7 +372,7 @@ async def main():
 if __name__ == "__main__":
     start = time()
     # WARNING: Change the debug for production purposes
-    asyncio.run(main())#,debug=True)
+    asyncio.run(main()) # ,debug=True)
     end = time()
     taken=end-start
     print("Time taken: %s" % round(taken,2))
