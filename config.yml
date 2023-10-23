@@ -8,7 +8,7 @@ db_environments:
     headers_coll: header_scans
     orphans_coll: orphan
 general:
-  scrapeops: 855523ae-8c95-4594-91a7-8b01de2a028f
+  scrapeops: <your key>
   abusable_domains:
     - '*.amazonaws.com': 
       - exfil
