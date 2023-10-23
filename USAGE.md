@@ -11,8 +11,14 @@ pipenv install
 pipenv shell
 ```
 ## Database setup
-The scrip assumes a MongoDB database is running somewhere. I've added a Docker Compose  file in mongodb/docker-compose.yml to ease the local setup, but you can run another MongoDB wherever you want.
-If you decide to use the docker MongoDB instance, edit the file [mongodb/docker-compose.yml](mongodb/docker-compose.yml) and personalise the values of "<db user>", "<db pass>", "<express user>", and "<express pass>". Then, to run the server, execute the following commands:
+The scrip assumes a MongoDB database is running somewhere. I've added a Docker Compose file in mongodb/docker-compose.yml to ease the local setup, but you can run another MongoDB wherever you want.
+If you decide to use the docker MongoDB instance, create an mongodb/.env file with the following values:
+* MONGO_ROOT_USER=<your user>
+* MONGO_ROOT_PASSWORD=<your password>
+* MONGOEXPRESS_LOGIN=<express user>
+* MONGOEXPRESS_PASSWORD=<express password>
+
+Then, to run the server, execute the following commands:
 ```
 cd mongodb
 docker-compose up
