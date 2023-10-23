@@ -93,7 +93,7 @@ This is the order you need to execute the script:
 	```
 5. Whe the previous script finished detecting weaknesses, let's find out if there are some orphan domains (NXDOMAIN) within the CSP policies that you can take advantage of:
 	```
-	python ./update_orphan_domains.py -e mydbenvironment
+	python ./flag_orphan_domains.py -e mydbenvironment
 	```
 6. Now, let's introduce in the DB a new vulnerability per each site that has a CSP featuring a domain that is not registered:
 	```
